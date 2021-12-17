@@ -81,6 +81,10 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod], "r", lazy.spawncmd(),
         desc="Spawn a command using a prompt widget"),
+    
+    # Menu
+    Key([mod], "m", lazy.spawn("rofi -show run")),
+    Key([mod, "shift"], "m", lazy.spawn("rofi -show")),
 ]
 
 groups = [Group(i) for i in "123456789"]
