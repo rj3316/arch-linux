@@ -98,3 +98,95 @@ usermod -aG wheel "user"
 
 vim /etc/sudoers -> Permitir grupo #wheel y #sudo ejecutar como sudo
 
+reboot -> Reiniciar para que coja los permisos de usuarios
+
+## 1.8 Instalar Servidor gráfico y Drivers
+sudo pacman -S xorg-server xorg-xinit
+
+sudo pacman -S xf86-video-intel intel-ucode
+
+## 1.9 Instalar Gestor ventanas y Gestor sesiones
+ - Gestor ventanas "tiling"
+
+sudo pacman -S qtile xterm -> Xterm es la terminal por defecto de Qtile, instalamos para que nos permita empezar
+
+setxkbmap es -> Establece idioma/distribución teclado en castellano
+
+ - Gestor sesiones (ligthdm no funciona)
+sudo pacman -S lxdm  
+
+## 1.10 Instalar herramientas de consola y editor de texto
+ - Consola
+
+sudo pacman -S alacritty
+
+ - Editor de texto
+
+sudo pacman -S code
+
+ - Tema de color:
+
+	Atom One Dark
+
+	ayu
+
+ - Tema de icono de archivo:
+
+	Material Icon Dark
+
+## 1.11 Instalar lanzador de aplicaciones
+ - Instalar paquete
+
+sudo pacman -S rofi
+
+ - Temas de rofi
+
+rofi-theme-selector
+
+ - Configurar atajos de teclado
+
+vim ~/.config/qtile/config.py
+
+#Añadir atajos para rofi
+
+ - Reiniciar Qtile
+
+mod + ctrl + r
+
+## 1.12 Instalar Gestor wallpaper
+sudo pacman -S feh
+
+feh --bg-scale "FILE"
+
+## 1.13 Instalar Gestor audio
+ - Gestor Audio
+
+sudo pacman -S pulseaudio
+
+ - Habilitar la tarjeta de sonido para que funcione
+
+sudo pacman -S alsa-utils
+
+alsamixer -> F6 y elegir la tarjeta de sonido a utilizar
+
+asoundconf list -> Lista tarjetas de sonido disponibles
+
+asound set-default-card PARAMETER -> Establece como predeterminada una de las tarjetas
+
+sudo systemctl start alsa-restore.service
+
+sudo systemctl enable alsa-restore.service
+
+pulseaudio
+
+ - Interfaz gráfica para Gestor audio
+
+sudo pacman -S pavucontrol
+
+#Añadir atajos de teclado para subir/bajar/mute volumen
+
+## 1.14 Instalar Gestor brillo
+sudo pacman -S brightnessctl
+
+#Añadir atajos de teclado para subir/bajar brillo
+
