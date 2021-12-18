@@ -26,10 +26,42 @@
 
 from typing import List  # noqa: F401
 
-from libqtile import bar, layout, widget
+from libqtile import bar, layout, widget, hook
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+
+from os import path
+import subprocess
+
+# Definimos colores para usar en el script (cada color es una lista de dos -> degradados)
+colors = {
+    "dark": [
+        "#0f101a",
+        "#0f101a"
+    ],
+    "grey": [
+        "#5c5c5c",
+        "#5c5c5c"
+    ],
+    "ligth": [
+        "#f1ffff",
+        "#f1ffff"
+    ],
+    "text": [
+        "#0f101a",
+        "#0f101a"
+    ],
+    "focus": [
+        "#f07178",
+        "#f07178"
+    ]
+}
+
+# Lanzamos el autostart.sh
+@hook.subscribe.startup_once
+def autostart():
+    subprocess.call([path.join(path.expanduser('~'), '.config', 'qtile', 'autostart.sh')])
 
 mod = "mod4"
 terminal = guess_terminal()
@@ -37,12 +69,9 @@ terminal = guess_terminal()
 keys = [
     # -------------- Window config --------------
     # Switch between windows
-    Key([mod], "j", lazy.layout.down(), 
-        desc="Move focus down"),
-    Key([mod], "k", lazy.layout.up(), 
-        hdesc="Move focus up"),
-    Key([mod], "space", lazy.layout.next(),
-        desc="Move window focus to other window"),
+    Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
+    Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
+    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
@@ -69,6 +98,12 @@ keys = [
     # Window tab
     Key([mod, "shift"], "m", lazy.spawn("rofi -show")),
 
+    # Web browser
+    Key([mod], "b", lazy.spawn("firefox")),
+
+    # VSCode
+    Key([mod], "c", lazy.spawn("code")), 
+
     # -------------- Hardware config --------------
     # Volume control
     Key([], "XF86AudioLowerVolume", lazy.spawn(
@@ -90,23 +125,21 @@ keys = [
     )),     
 ]
 
+#group_names = ["MAIN", "WWW", "DEV", "MISC", "FOLDER"]
 
+group_names = ["   ", "   ", "   ", "   ", "   "]
 
-groups = [Group(i) for i in "123456789"]
+groups = [Group(i) for i in group_names]
 
-for i in groups:
+for i,group in enumerate(groups):
+    actual_key = str(i + 1)
+
     keys.extend([
-        # mod1 + letter of group = switch to group
-        Key([mod], i.name, lazy.group[i.name].toscreen(),
-            desc="Switch to group {}".format(i.name)),
+        # Switch to workspace N
+        Key([mod], actual_key, lazy.group[group.name].toscreen()),
 
-        # mod1 + shift + letter of group = switch to & move focused window to group
-        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
-            desc="Switch to & move focused window to group {}".format(i.name)),
-        # Or, use below if you prefer not to switch to that group.
-        # # mod1 + shift + letter of group = move focused window to group
-        # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-        #     desc="move focused window to group {}".format(i.name)),
+        # Send window to workspace N
+        Key([mod, "shift"], actual_key, lazy.window.togroup(group.name)),
     ])
 
 layouts = [
@@ -125,34 +158,51 @@ layouts = [
     # layout.Zoomy(),
 ]
 
+general_font_size = 14
+
 widget_defaults = dict(
-    font='sans',
-    fontsize=12,
-    padding=3,
+    font = 'UbuntuMono Nerd Font',
+    fontsize = general_font_size,
+    padding = 3,
 )
 extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        bottom=bar.Bar(
+        top=bar.Bar(
             [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        'launch': ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
+                widget.GroupBox(
+                    foreground = colors['dark'],
+                    background = colors['dark'],
+                    font = 'UbuntuMono Nerd Font',
+                    fontsize = general_font_size,
+                    center_aligned = True,
+                    margin_y = 3,
+                    margin_x = 0,
+                    padding_y = 8,
+                    padding_x = 5,
+                    borderwidth = 3,
+                    active = colors['ligth'],
+                    inactive = colors['grey'],
+                    rounded = True,
+                    highlight_method = 'block',
+                    this_current_screen_border = colors['focus'],
+                    this_screen_border = colors['grey'],
+                    other_current_screen_border = colors['dark'],
+                    other_screen_border = colors['dark']
                 ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+                widget.WindowName(
+                    foreground = colors['focus'],
+                    background = colors['dark'],
+                    fontsize = 12,
+                    font = "UbuntuMono Nerd Font Bold"
+                ),
                 widget.Systray(),
+                widget.CurrentLayout(),                
                 widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
-                widget.QuickExit(),
             ],
-            24,
+            28,
+            opacity=0.75
         ),
     ),
 ]

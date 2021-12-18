@@ -37,4 +37,5 @@ fi
 setxkbmap es &
 
 # Wallpaper
-./fehbg &
+feh --no-fehbg --bg-scale '/home/igor/.config/qtile/wallpapers/arch_linux_wood_background_by_tycon712_d3czkut.png' &
+

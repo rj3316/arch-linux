@@ -190,3 +190,63 @@ sudo pacman -S brightnessctl
 
 #Añadir atajos de teclado para subir/bajar brillo
 
+## 1.15 Instalar Compositor de imagen
+Sirve para personalizar el aspecto gráfico de las ventanas (transparencia, bordes, sombras, etc.)
+
+sudo pacman -S picom
+
+## 1.16 Instalar herramientas útiles
+ - Logo ArchLinux en terminal
+
+sudo pacman -S neofetch
+
+ - Procesos, CPU, memoria, etc.
+
+sudo pacman -S htop
+
+sudo pacman -S bpytop
+
+## 1.17 Instalar Gestor paquetes Repositorio de Usuarios ArchLinux (AUR) - YAY
+sudo pacman -Sy
+
+sudo pacman -S binutils
+
+rm -rf /tmp/yay 2> /dev/null && mkdir /tmp/yay && cd /tmp/yay
+
+git clone https://aur.archlinux.org/yay.git && cd yay
+
+makepkg -si
+
+## 1.18 Activar colores en pacman y yay
+sudo sed -i '/^#Color/s/^#//' /etc/pacman/conf
+
+## 1.19 Instalar fuentes para Qtile
+ - Nerd Fonts
+
+yay -S nerd-fonts-ubuntu-fonts
+
+Las activamos en ~/.config/qtile/config.py
+widgets_defaults -> font='UbuntuMono Nerd Font'
+
+Cada widget tiene su propia configuración -> Qtile docs / Built-in-widgets
+http://docs.qtile.org/en/latest/manual/ref/widgets.html?highlight=widgets
+
+La barra la cambiamos de "bottom" a "top"
+
+ - Volume icon
+
+sudo pacman -S volumeicon
+
+ - Battery icon
+
+sudo pacman -S cbatticon
+
+En lugar de meterlos en .xsession, que se ejecutarían con todos los gestores de ventanas, lo hacemos solo para Qtile
+
+Creamos ~/.config/qtile/autostart.sh -> Script que se ejecuta la primera vez que se arranca Qtile
+
+## 1.20 Logs Qtile
+~/.local/share/qtile/qtile.log
+
+Para borrar el log (no es recomendable) -> echo "" > ~/.local/share/qtile/qtile.log
+
