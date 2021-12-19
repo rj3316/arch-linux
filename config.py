@@ -34,28 +34,69 @@ from libqtile.utils import guess_terminal
 from os import path
 import subprocess
 
+# Definimos tamaños de letra
+base_fontsize = 14
+delta_font = 2
+
+s3small_fontsize = base_fontsize - 3*delta_font
+s2small_fontsize = base_fontsize - 2*delta_font
+small_fontsize   = base_fontsize - delta_font
+normal_fontsize  = base_fontsize
+big_fontsize     = base_fontsize + delta_font
+s2big_fontsize   = base_fontsize + 2*delta_font
+s3big_fontsize   = base_fontsize + 3*delta_font
+
 # Definimos colores para usar en el script (cada color es una lista de dos -> degradados)
-colors = {
-    "dark": [
-        "#0f101a",
-        "#0f101a"
-    ],
-    "grey": [
-        "#5c5c5c",
-        "#5c5c5c"
-    ],
-    "ligth": [
-        "#f1ffff",
-        "#f1ffff"
-    ],
-    "text": [
-        "#0f101a",
-        "#0f101a"
-    ],
-    "focus": [
-        "#f07178",
-        "#f07178"
+colors_codes = {
+    "deg": "#0f111a",
+    "dark": "#0f101a",
+    "ligth": "#f1f1f1",
+    "text": "#fffeec",
+    "grey": "#5c5c5c",
+    "magenta": "#d8555d",
+    "red": "#da3942",
+    "orange": "#fb9f7f",
+    "golden": "#ffd47e",
+    "purple": "#660066",    
+    "green": "#19971f",
+    "green_dark": "#034506",
+    "blue": "#29397a",
+}
+
+colors = {}
+
+for color in colors_codes:
+    tmp_colors = [
+        color,
+        color + '_deg'
     ]
+
+    for tmp_color in tmp_colors:
+        if '_deg' in tmp_color:
+            c1 = colors_codes['deg']
+        else:
+            c1 = colors_codes[color]
+
+        c2 = colors_codes[color]
+
+        colors[tmp_color] = [
+            c1,
+            c2,
+        ]
+
+# Elegimos el color FOCUS
+colors['focus'] = colors['red_deg']
+
+# Configuramos los separadores que se crearán
+separator = {
+    "color": [
+        colors['focus'],
+        colors['focus'],
+    ],
+    "padding": [
+        5,
+        5
+    ],
 }
 
 # Lanzamos el autostart.sh
@@ -63,8 +104,9 @@ colors = {
 def autostart():
     subprocess.call([path.join(path.expanduser('~'), '.config', 'qtile', 'autostart.sh')])
 
-mod = "mod4"
-terminal = guess_terminal()
+# mod = "mod1" # Alt
+mod = "mod4" # Windows
+terminal = "alacritty"
 
 keys = [
     # -------------- Window config --------------
@@ -90,7 +132,7 @@ keys = [
     
     # -------------- Program config --------------
     # Launch terminal
-    Key([mod], "Return", lazy.spawn(terminal), desc="alacritty"),
+    Key([mod], "Return", lazy.spawn(terminal), desc=terminal),
 
     # Menu
     Key([mod], "m", lazy.spawn("rofi -show run")),
@@ -158,48 +200,85 @@ layouts = [
     # layout.Zoomy(),
 ]
 
-general_font_size = 14
-
 widget_defaults = dict(
-    font = 'UbuntuMono Nerd Font',
-    fontsize = general_font_size,
     padding = 3,
+    font = "UbuntuMono Nerd Font",
+    fontsize = normal_fontsize,
 )
 extension_defaults = widget_defaults.copy()
+
+# Creamos los widget separadores según configuración
+sep = []
+for i, sep_color in enumerate(separator['color']):
+    new_sep =  widget.Sep(
+        linewidth = 0, 
+        padding = separator['padding'][i], 
+        background = separator['color'][i]
+    )
+    sep.append(new_sep)
 
 screens = [
     Screen(
         top=bar.Bar(
             [
                 widget.GroupBox(
-                    foreground = colors['dark'],
-                    background = colors['dark'],
-                    font = 'UbuntuMono Nerd Font',
-                    fontsize = general_font_size,
-                    center_aligned = True,
-                    margin_y = 3,
-                    margin_x = 0,
-                    padding_y = 8,
                     padding_x = 5,
+                    padding_y = 8,
                     borderwidth = 3,
+                    rounded = True,
+                    background = colors['dark'],
+                    foreground = colors['dark'],
                     active = colors['ligth'],
                     inactive = colors['grey'],
-                    rounded = True,
                     highlight_method = 'block',
+                    font = "UbuntuMono Nerd Font",
+                    fontsize = normal_fontsize,
+                    center_aligned = True,
                     this_current_screen_border = colors['focus'],
                     this_screen_border = colors['grey'],
                     other_current_screen_border = colors['dark'],
                     other_screen_border = colors['dark']
                 ),
                 widget.WindowName(
-                    foreground = colors['focus'],
                     background = colors['dark'],
-                    fontsize = 12,
+                    foreground = colors['focus'],
+                    fontsize = small_fontsize,
                     font = "UbuntuMono Nerd Font Bold"
                 ),
-                widget.Systray(),
-                widget.CurrentLayout(),                
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
+                widget.Systray(
+                    padding = 20,
+                    background = colors['focus'],
+                    foreground = colors['text'],                    
+                ),
+                sep[0],
+                widget.CurrentLayoutIcon(
+                    padding = 8,
+                    background = colors['focus'],
+                    foreground = colors['text'],
+                    scale = 0.6
+                ),
+                widget.CurrentLayout(
+                    padding = 20,
+                    background = colors['focus'],
+                    foreground = colors['text'], 
+                    font = "UbuntuMono Nerd Font",
+                    fontsize = normal_fontsize                   
+                ), 
+                sep[1], 
+                widget.TextBox(
+                    background = colors['focus'],
+                    foreground = colors['text'],
+                    text = ' 﨟  ',
+                    fontsize = s2big_fontsize
+                ),           
+                widget.Clock(
+                    padding = 15,
+                    background = colors['focus'],
+                    foreground = colors['text'],
+                    format = "%Y-%m-%d %H:%M",
+                    font = "UbuntuMono Nerd Font",
+                    fontsize = normal_fontsize,
+                    ),
             ],
             28,
             opacity=0.75

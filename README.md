@@ -250,3 +250,8 @@ Creamos ~/.config/qtile/autostart.sh -> Script que se ejecuta la primera vez que
 
 Para borrar el log (no es recomendable) -> echo "" > ~/.local/share/qtile/qtile.log
 
+Para evitar errores en qtile.log:
+
+sudo pacman -S python-pip
+
+sudo pip install dbus-next
