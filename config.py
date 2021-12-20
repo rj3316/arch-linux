@@ -34,6 +34,9 @@ from libqtile.utils import guess_terminal
 from os import path
 import subprocess
 
+# Definimos el path local
+local_path = path.join(path.expanduser('~'), '.config', 'qtile')
+
 # Definimos tamaños de letra
 base_fontsize = 14
 delta_font = 2
@@ -52,15 +55,19 @@ colors_codes = {
     "dark": "#0f101a",
     "ligth": "#f1f1f1",
     "text": "#fffeec",
-    "grey": "#5c5c5c",
+    "grey": "#606060",
+    "grey_dark": "#505050",
     "magenta": "#d8555d",
     "red": "#da3942",
+    "red_dark": "#770000",
     "orange": "#fb9f7f",
     "golden": "#ffd47e",
     "purple": "#660066",    
-    "green": "#19971f",
-    "green_dark": "#034506",
+    "green": "#00bb55",
+    "green_dark": "#11aa00",
     "blue": "#29397a",
+    "yellow": "#ffff33",
+    "yellow_dark": "#cccc00",
 }
 
 colors = {}
@@ -84,29 +91,69 @@ for color in colors_codes:
             c2,
         ]
 
+# Creamos degradados monocolor
+colors['green_monodeg'] = [
+    colors_codes['green_dark'],
+    colors_codes['green'],
+]
+
+colors['red_monodeg'] = [
+    colors_codes['red_dark'],
+    colors_codes['red'],
+]
+
+colors['yellow_monodeg'] = [
+    colors_codes['yellow_dark'],
+    colors_codes['yellow'],
+]
+
 # Elegimos el color FOCUS
-colors['focus'] = colors['red_deg']
+colors['focus'] = colors['grey_deg']
+colors['focus_alt'] = colors['grey_deg']
+colors['selected_window'] = colors['red_dark']
+
+# colors['focus'] = colors['red_monodeg']
+# colors['focus_alt'] = colors['green_monodeg']
 
 # Configuramos los separadores que se crearán
-separator = {
+separators = {
     "color": [
-        colors['focus'],
+        colors['focus_alt'],
         colors['focus'],
     ],
     "padding": [
-        5,
-        5
+        10,
+        10
     ],
 }
 
-# Lanzamos el autostart.sh
+# Congiguramos las imagenes complementarias que se crearán
+images = {
+    "color": [
+        colors['focus'],
+        colors['focus'],
+        colors['focus_alt'],  
+    ],
+    "filename": [
+        path.join(local_path, 'img', 'bar_dark_grey.png'),
+        path.join(local_path, 'img', 'bar_dark_red.png'),
+        path.join(local_path, 'img', 'bar_dark_red.png'),
+    ],
+}
+
+# Lanzamos el autostart.sh solo una vez
 @hook.subscribe.startup_once
 def autostart():
-    subprocess.call([path.join(path.expanduser('~'), '.config', 'qtile', 'autostart.sh')])
+    subprocess.call(path.join(local_path, 'autostart.sh'))
 
 # mod = "mod1" # Alt
 mod = "mod4" # Windows
 terminal = "alacritty"
+
+
+
+
+# ----------------- KEYS -----------------
 
 keys = [
     # -------------- Window config --------------
@@ -121,6 +168,17 @@ keys = [
         desc="Move window down"),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), 
         desc="Move window up"),
+
+    # Grow windows. If current window is on the edge of screen and direction
+    # will be to screen edge - window would shrink.
+    Key([mod, "control"], "h", lazy.layout.grow_left(),
+        desc="Grow window to the left"),
+    Key([mod, "control"], "l", lazy.layout.grow_right(),
+        desc="Grow window to the right"),
+    Key([mod, "control"], "j", lazy.layout.grow_down(),
+        desc="Grow window down"),
+    Key([mod, "control"], "k", lazy.layout.grow_up(), 
+        desc="Grow window up"),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
@@ -146,6 +204,9 @@ keys = [
     # VSCode
     Key([mod], "c", lazy.spawn("code")), 
 
+    # Scrot
+    Key([mod], "p", lazy.spawn("echo Hola")),
+
     # -------------- Hardware config --------------
     # Volume control
     Key([], "XF86AudioLowerVolume", lazy.spawn(
@@ -167,8 +228,9 @@ keys = [
     )),     
 ]
 
-#group_names = ["MAIN", "WWW", "DEV", "MISC", "FOLDER"]
+# ----------------- GROUPS -----------------
 
+#group_names = ["MAIN", "WWW", "DEV", "MISC", "FOLDER"]
 group_names = ["   ", "   ", "   ", "   ", "   "]
 
 groups = [Group(i) for i in group_names]
@@ -184,6 +246,17 @@ for i,group in enumerate(groups):
         Key([mod, "shift"], actual_key, lazy.window.togroup(group.name)),
     ])
 
+dgroups_key_binder = None
+dgroups_app_rules = []  # type: List
+
+# ----------------- LAYOUTS -----------------
+
+layout_conf = {
+    'border_focus': colors['selected_window'][0],
+    'border_width': 2,
+    'margin': 4
+}
+
 layouts = [
     #layout.Columns(border_focus_stack=['#d75f5f', '#8f3d3d'], border_width=4),
     layout.Max(),
@@ -191,14 +264,53 @@ layouts = [
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
     # layout.Matrix(),
-    layout.MonadTall(),
-    layout.MonadWide(),
+    layout.MonadTall(**layout_conf),
+    layout.MonadWide(**layout_conf),
     # layout.RatioTile(),
     # layout.Tile(),
     # layout.TreeTab(),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
+
+floating_layout = layout.Floating(float_rules=[
+    # Run the utility of `xprop` to see the wm class and name of an X client.
+    *layout.Floating.default_float_rules,
+    Match(wm_class='confirmreset'),  # gitk
+    Match(wm_class='makebranch'),  # gitk
+    Match(wm_class='maketag'),  # gitk
+    Match(wm_class='ssh-askpass'),  # ssh-askpass
+    Match(title='branchdialog'),  # gitk
+    Match(title='pinentry'),  # GPG key password entry
+])
+
+#floating_layout = layout.Floating(
+#    float_rules = [
+#        # Run the utility of `xprop` to see the wm class and name of an X client.
+#        {'wmclass': 'confirm'},
+#        {'wmclass': 'dialog'},
+#        {'wmclass': 'download'},
+#        {'wmclass': 'error'},
+#        {'wmclass': 'file_progress'},
+#        {'wmclass': 'notification'},
+#        {'wmclass': 'splash'},
+#        {'wmclass': 'toolbar'},
+#        {'wmclass': 'confirmreset'}, # gitk
+#        {'wmclass': 'makebranch'}, # gitk
+#        {'wmclass': 'maketag'}, # gitk
+#        {'wmname': 'branchdialog'}, # gitk
+#        {'wmname': 'pinentry'}, # GPG key password entry
+#        {'wmname': 'ssh-askpass'}, # ssh-askpass
+#    ], 
+#    border_focus = colors['selected_window'][0]
+#)
+
+auto_fullscreen = True
+focus_on_window_activation = "smart"
+reconfigure_screens = True
+
+
+# ----------------- WIDGETS -----------------
 
 widget_defaults = dict(
     padding = 3,
@@ -209,13 +321,22 @@ extension_defaults = widget_defaults.copy()
 
 # Creamos los widget separadores según configuración
 sep = []
-for i, sep_color in enumerate(separator['color']):
+for i, sep_color in enumerate(separators['color']):
     new_sep =  widget.Sep(
         linewidth = 0, 
-        padding = separator['padding'][i], 
-        background = separator['color'][i]
+        padding = separators['padding'][i], 
+        background = separators['color'][i]
     )
     sep.append(new_sep)
+
+img = []
+for i, img_color in enumerate(images['color']):
+    new_img = widget.Image(
+        backgroud = images['color'][i],
+        filename = images['filename'][i],
+    )
+
+    img.append(new_img)
 
 screens = [
     Screen(
@@ -245,25 +366,31 @@ screens = [
                     fontsize = small_fontsize,
                     font = "UbuntuMono Nerd Font Bold"
                 ),
+                img[0],
+                sep[1],
                 widget.Systray(
                     padding = 20,
                     background = colors['focus'],
                     foreground = colors['text'],                    
                 ),
+                sep[1],
+                img[0],
                 sep[0],
                 widget.CurrentLayoutIcon(
                     padding = 8,
-                    background = colors['focus'],
+                    background = colors['focus_alt'],
                     foreground = colors['text'],
                     scale = 0.6
                 ),
                 widget.CurrentLayout(
                     padding = 20,
-                    background = colors['focus'],
+                    background = colors['focus_alt'],
                     foreground = colors['text'], 
                     font = "UbuntuMono Nerd Font",
                     fontsize = normal_fontsize                   
                 ), 
+                sep[0], 
+                img[0],
                 sep[1], 
                 widget.TextBox(
                     background = colors['focus'],
@@ -286,6 +413,8 @@ screens = [
     ),
 ]
 
+# ----------------- MOUSE -----------------
+
 # Drag floating layouts.
 mouse = [
     Drag([mod], "Button1", lazy.window.set_position_floating(),
@@ -295,28 +424,12 @@ mouse = [
     Click([mod], "Button2", lazy.window.bring_to_front())
 ]
 
-dgroups_key_binder = None
-dgroups_app_rules = []  # type: List
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-floating_layout = layout.Floating(float_rules=[
-    # Run the utility of `xprop` to see the wm class and name of an X client.
-    *layout.Floating.default_float_rules,
-    Match(wm_class='confirmreset'),  # gitk
-    Match(wm_class='makebranch'),  # gitk
-    Match(wm_class='maketag'),  # gitk
-    Match(wm_class='ssh-askpass'),  # ssh-askpass
-    Match(title='branchdialog'),  # gitk
-    Match(title='pinentry'),  # GPG key password entry
-])
-auto_fullscreen = True
-focus_on_window_activation = "smart"
-reconfigure_screens = True
 
-# If things like steam games want to auto-minimize themselves when losing
-# focus, should we respect this or not?
-auto_minimize = True
+
+# ----------------- OTHERS -----------------
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the

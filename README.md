@@ -209,6 +209,8 @@ sudo pacman -S bpytop
 ## 1.17 Instalar Gestor paquetes Repositorio de Usuarios ArchLinux (AUR) - YAY
 sudo pacman -Sy
 
+sudo pacman -F "PAQUETE" -> Buscar un paquete
+
 sudo pacman -S binutils
 
 rm -rf /tmp/yay 2> /dev/null && mkdir /tmp/yay && cd /tmp/yay
@@ -255,3 +257,91 @@ Para evitar errores en qtile.log:
 sudo pacman -S python-pip
 
 sudo pip install dbus-next
+
+## 1.21 Montar USB
+
+- Automontador USB
+
+sudo pacman -S udisks2
+
+- Icono systray
+
+sudo pacman -S udiskie
+
+- Para poder montar unidades de disco duro, necesita poder leer FS NTFS
+
+sudo pacman -S ntfs-3g
+
+- El programa udiskie intenta enviar notificaciones push al escritorio. Por defecto no puede, por lo que hay que hacer:
+ 
+sudo pacman -S notification-daemon
+
+En ~/-profile añadir:
+
+export XDG_DATA_HOME=$HOME/.local/share
+
+mkdir -p $XDG_DATA_HOME/dbus-1/services
+
+echo '
+[D-BUS Service]
+Name=org.freedesktop.Notifications
+Exec=/usr/lib/notification-daemon-1.0/notification-daemon
+' > $XDG_DATA_HOME/dbus-1/services/org.freedesktop.Notifications.service
+
+Añadimos "udiskie -t" a ~/-xsession para que lo lance al arrancar
+
+## 1.22 Instalar fuentes para terminal y navegador
+sudo pacman -S ttf-dejavu ttf-liberation noto-fonts
+
+## 1.23 Pantallas
+
+sudo pacman -S xorg-xrandr
+
+ - Mostrar listado de resoluciones de monitores conectados
+
+xrandr
+
+eDP1, HDMI1, VGA1...
+
+ - Configurar resoluciones de los monitores
+
+xrandr --output eDP1 --mode 1366x768 --output HDMI1 --mode 2560x1220
+
+ - Modificar tamaño de la pantalla
+
+xrandr -size 1366x768
+
+ - Gestor pantallas gráfico
+
+sudo pacman -S arandr
+
+## 1.24 Gestor basura
+sudo pacman -S trash-cli
+
+Crear alias en ~/.bashrc:
+
+alias rm='trash-put $1'
+
+Crear variable en ~/.profile:
+
+export TRASH=$XDG_DATA_HOME/Trash/files
+
+## 1.25 Visor imagenes
+sudo pacman -S imv
+
+## 1.26 Visor videos
+sudo pacman -S vlc
+
+## 1.27 Screenshot
+sudo pacman -S scrot
+
+## 1.28 Modificar GTK
+sudo pacman -S lxappearance
+
+ - Archivos de configuracion
+
+/usr/share/gtk-2.0/gtkrc
+
+/usr/share/gtk-3.0/gtkrc
+
+/etc/gtkrc
