@@ -345,3 +345,11 @@ sudo pacman -S lxappearance
 /usr/share/gtk-3.0/gtkrc
 
 /etc/gtkrc
+
+## 1.29 Instalar Gestor archivos terminal y Gestor archivos gráfico
+sudo pacman -S thunar
+
+## 1.30 Instalar funciones archivar / comprimimir
+sudo pacman -S zip
+
+sudo pacman -S tar

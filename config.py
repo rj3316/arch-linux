@@ -183,7 +183,8 @@ keys = [
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
 
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
+    # Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "shift"], "c", lazy.window.kill(), desc="Kill focused window"),
 
     Key([mod, "control"], "r", lazy.restart(), desc="Restart Qtile"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
@@ -198,14 +199,18 @@ keys = [
     # Window tab
     Key([mod, "shift"], "m", lazy.spawn("rofi -show")),
 
-    # Web browser
-    Key([mod], "b", lazy.spawn("firefox")),
+    # Firefox
+    Key([mod], "f", lazy.spawn("firefox")),
 
     # VSCode
     Key([mod], "c", lazy.spawn("code")), 
 
     # Scrot
-    Key([mod], "p", lazy.spawn("echo Hola")),
+    Key([mod], "s", lazy.spawn("scrot")),
+
+    # Thunder
+    Key([mod], "e", lazy.spawn("thunar")),
+
 
     # -------------- Hardware config --------------
     # Volume control
