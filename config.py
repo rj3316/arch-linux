@@ -63,6 +63,7 @@ colors_codes = {
     "orange": "#fb9f7f",
     "golden": "#ffd47e",
     "purple": "#660066",    
+    "purple_dark": "#330033",    
     "green": "#00bb55",
     "green_dark": "#11aa00",
     "blue": "#29397a",
@@ -107,9 +108,14 @@ colors['yellow_monodeg'] = [
     colors_codes['yellow'],
 ]
 
+colors['purple_monodeg'] = [
+    colors_codes['purple_dark'],
+    colors_codes['purple'],
+]
+
 # Elegimos el color FOCUS
-colors['focus'] = colors['grey_deg']
-colors['focus_alt'] = colors['grey_deg']
+colors['focus'] = colors['purple_monodeg']
+colors['focus_alt'] = colors['purple_deg']
 colors['selected_window'] = colors['red_dark']
 
 # colors['focus'] = colors['red_monodeg']
@@ -184,7 +190,7 @@ keys = [
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
 
     # Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "shift"], "c", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
 
     Key([mod, "control"], "r", lazy.restart(), desc="Restart Qtile"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
@@ -201,6 +207,10 @@ keys = [
 
     # Firefox
     Key([mod], "f", lazy.spawn("firefox")),
+
+    # Opera
+    Key([mod], "o", lazy.spawn("opera")),
+
 
     # VSCode
     Key([mod], "c", lazy.spawn("code")), 
@@ -236,7 +246,7 @@ keys = [
 # ----------------- GROUPS -----------------
 
 #group_names = ["MAIN", "WWW", "DEV", "MISC", "FOLDER"]
-group_names = ["   ", "   ", "   ", "   ", "   "]
+group_names = ["   ", "   ", "   ", "   ", "   "]
 
 groups = [Group(i) for i in group_names]
 

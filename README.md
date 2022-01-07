@@ -222,6 +222,26 @@ makepkg -si
 ## 1.18 Activar colores en pacman y yay
 sudo sed -i '/^#Color/s/^#//' /etc/pacman/conf
 
+ - Colores
+
+negro 0;30
+gris oscuro 1;30
+azul 0;34
+celeste 1:34
+verde oscuro 0;32
+verde claro 1;32
+cian 0;36
+verde agua 1;36
+rojo 0;31
+rojo claro 1;31
+violeta 0;35
+lila 1;35
+marron 0;33
+amarillo 1;33
+gris claro 0;37
+blanco 1;37
+
+
 ## 1.19 Instalar fuentes para Qtile
  - Nerd Fonts
 
@@ -290,11 +310,14 @@ Exec=/usr/lib/notification-daemon-1.0/notification-daemon
 
 Añadimos "udiskie -t" a ~/-xsession para que lo lance al arrancar
 
+ - Instalar funcion lsusb
+
+sudo pacman -F usbutils
+
 ## 1.22 Instalar fuentes para terminal y navegador
 sudo pacman -S ttf-dejavu ttf-liberation noto-fonts
 
 ## 1.23 Pantallas
-
 sudo pacman -S xorg-xrandr
 
  - Mostrar listado de resoluciones de monitores conectados
@@ -346,10 +369,104 @@ sudo pacman -S lxappearance
 
 /etc/gtkrc
 
+ - Temas
+
+Colores: https://www.gnome-look.org/p/1316887/
+
+Iconos: https://www.pling.com/p/1333360/
+
+sudo cp -r Material-Black-Blueberry-Theme/ /usr/share/themes/
+
+sudo cp -r Material-Black-Blueberry-Suru-Icons/ /usr/share/icons/
+
+Modificamos ~/.gtkrc-2.0 y ~/.config/gtk-3.0/settings.ini 
+
 ## 1.29 Instalar Gestor archivos terminal y Gestor archivos gráfico
 sudo pacman -S thunar
 
-## 1.30 Instalar funciones archivar / comprimimir
-sudo pacman -S zip
+## 1.30 Instalar el manual
+sudo pacman -S man
 
-sudo pacman -S tar
+## 1.31 Instalar compilador de Java
+sudo pacman -S jdk-openjdk
+
+Para compilar -> javac <file>.java
+
+## 1.32 Instalar lshw
+sudo pacman -S lshw
+
+## 1.33 Instalar Controladores Logitech (wireless mouse)
+
+## 1.34 Firewall (iptables)
+Por defecto trae el firewall (iptables) sin reglas definidas y deshabilitado
+
+sudo systemctl enable iptables
+
+sudo systemctl start iptables
+
+ - Para limpiar las reglas ya definidas:
+
+iptables --flush
+
+ - Para ver las reglas definidas:
+
+iptables -L
+
+Si queremos implementar un firewall "de verdad", hacen falta más programas.
+Así, implementamos un UTMS (Unified Threatment Management System)
+
+ - iptables -> FW
+ - snort -> detección intrusos
+ - squip -> proxy server
+ - antix
+ - antispam
+ - antispyware
+ - ...
+
+## 1.35 Route
+La red 0.0.0.0/0 (netmask 255.255.255.0) es "cualquier red" -> Default Gateway
+
+ - Show routes
+
+route -n
+
+[igor@archigor:~] $ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 wlp2s0
+192.168.1.0     0.0.0.0         255.255.255.0   U     600    0        0 wlp2s0
+
+ - Add gateway
+
+sudo route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.168.1.1 dev enp3s0f2
+
+ - Remove gateway
+
+sudo route del -net 0.0.0.0 netmask 0.0.0.0 dev enp3s0f2 
+
+## 1.36 dhclient
+
+pacmani dhclient
+
+## 1.37 Configurar nombre interfaz de red
+
+Nombre original: enp3s0f2
+Nombre: eth0
+
+ - Leemos MAC de la tarjeta de red:
+
+cat /sys/class/net/enp3s0f2/address
+
+ - Modificar nombre de red
+
+sudo vim /etc/udev/rules.d/10-network-rules
+
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="f0:79:59:10:3b:08" NAME="eth0"
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="40:e2:30:66:4b:3a" NAME="wifi0"
+
+## 1.38 Configurar nslookup (dominios)
+sudo pacman -F nslookup
+
+pacmani bash-completion
+
+pacmani bind
